@@ -92,3 +92,45 @@ Entrypoint main = main.js
 ```
 
 A bunch more stuff, of which the some I omitted, is printed. Notice we now have `index.html` - take a look in `dist/index.html`.
+
+### Adding Vue
+
+Finally, it is time to add Vue with `npm install vue`. Node.js does not support `import` and `export` by default (as of 10.3 it does, __experimentally__, more [here](https://nodejs.org/api/esm.html)). Webpack, however, does (I'm not exactly sure how, perhaps using babel internally?). Anyway, that means we can use `import` and `export`! Update `src/index.js`:
+
+```js
+import Vue from "vue"
+
+document.addEventListener("DOMContentLoaded", () => {
+  new Vue({
+    el: "#app",
+    
+    data() {
+      return {
+        msg: "Hello"
+      }
+    },
+
+    template: "<div>{{ msg }}</div>"
+  })
+})
+```
+
+Now run `npm run dev`. We now see:
+
+```sh
+Hash: 9c0afed8a7477e9712d1
+Version: webpack 4.10.2
+Time: 645ms
+Built at: 2018-05-31 00:23:36
+     Asset       Size  Chunks             Chunk Names
+   main.js    317 KiB    main  [emitted]  main
+index.html  191 bytes          [emitted]
+```
+
+Now `main.js` is 317 kb! That's HUGE! Mainly because we are using the full build of Vue, without any minifying and so forth. It's okay for now. Run a server in `dist`, for example on MacOS you can do `cd dist && python -m SimpleHTTPServer`, and visiting `localhost:8000` should yield this error in the console:
+
+```
+[Vue warn]: You are using the runtime-only build of Vue where the template compiler is not available. Either pre-compile the templates into render functions, or use the compiler-included build.
+```
+
+This is because are using a `template` to construct our Vue app - the compiler which converts `template` into HTML and JavaScript is not available when using the runtime-only build (`import Vue from "vue"`). We need to use compiler included build, for now. We will fix this soon. Instead using `import Vue from "vue/dist/vue.esm.js"`, and run `npm run dev` once again. Now you should see "Hello" displayed.
