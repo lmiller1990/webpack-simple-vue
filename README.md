@@ -1,4 +1,8 @@
-In this article, I will show how to prepare a minimal webpack setup to develop Vue apps, complete with `webpack-dev-server` and hot reload.
+In this article, I will show how to prepare a webpack setup from scratch to develop Vue apps, complete with `webpack-dev-server` and hot reload. We will see how to use create `rules` for `loaders`, and how to use `plugins`.
+
+The source code can be found [here](https://github.com/lmiller1990/webpack-simple-vue/tree/basic).
+
+### Setup
 
 First, start of with an empty `package.json` by running `echo {} >> package.json`.
 
@@ -129,7 +133,7 @@ index.html  191 bytes          [emitted]
 
 Now `main.js` is 317 kb! That's HUGE! Mainly because we are using the full build of Vue, without any minifying and so forth. It's okay for now. Run a server in `dist`, for example on MacOS you can do `cd dist && python -m SimpleHTTPServer`, and visiting `localhost:8000` should yield this error in the console:
 
-```
+```bash
 [Vue warn]: You are using the runtime-only build of Vue where the template compiler is not available. Either pre-compile the templates into render functions, or use the compiler-included build.
 ```
 
@@ -273,7 +277,7 @@ Actually, now the bundle is 245 KiB - a significant improvement from 327 KiB. Al
 
 Now the exciting part, the `dev-server`. Until now, we were building a new bundle (by hand) and refreshing `localhost:8000` like suckers. Let's automate that with `webpack-dev-server`. We installed `webpack-dev-server` at the start, so you should be able to use it already by running `npx webpack-dev-server`.
 
-```
+```bash
 ℹ ｢wds｣: Project is running at http://localhost:8080/
 ℹ ｢wds｣: webpack output is served from /
 ⚠ ｢wdm｣: Hash: 55f5a357f2dc60279c3f
@@ -289,7 +293,7 @@ As noted, it is running at `localhost:8080`. You don't need your python server a
 
 Let's add a script in `package.json`:
 
-```
+```js
 "scripts": {
   "build": "npx webpack",
   "dev": "npx webpack-dev-server --mode development"
@@ -298,7 +302,7 @@ Let's add a script in `package.json`:
 
 The old `dev` script is now `build`. It will have `--mode production` at a later date. Lastly, we can add a few options to `webpack.config.js` to make the dev server a bit better. 
 
-```
+```js
 module.exports = {
   // ...
   devServer: {
@@ -333,7 +337,7 @@ In this post, we
 - learned how to use plugins (`HtmlWebpackPlugin`, `VueLoaderPlugin`)
 - learned how to add `module rules`, to tell webpack how to pass certain files (`.vue`)
 
-The total code in `webpack.config.js` is less than 30 lines, and not that complex. We now have a goob base for modern development environment.
+The total code in `webpack.config.js` is less than 30 lines, and not that complex. We now have a good base for modern development environment.
 
 ### Improvements
 
@@ -345,5 +349,5 @@ We can improve the webpack setup presented in a number of ways:
 
 And plenty more. A complex webpack config is daunting, but if you pull it into smaller pieces, each having a single, dedicated responsibility, suddenly it is't so difficult to understand. If something is difficult to understand, such as webpack, break it down into smaller pieces, until it is easy to understand.
 
-The source code can be found here.
+The source code can be found [here](https://github.com/lmiller1990/webpack-simple-vue/tree/basic).
 
