@@ -3,8 +3,10 @@
 - `webpack-dev-server`
 - ホットリロード
 - ローダーの使い方(`vue-loader`)
-- ぷログインの使い方(`HtmlWebpackPlugin`)
+- プラグインの使い方(`HtmlWebpackPlugin`)
 - [Vueのビルド](https://jp.vuejs.org/v2/guide/installation.html#%E3%81%95%E3%81%BE%E3%81%96%E3%81%BE%E3%81%AA%E3%83%93%E3%83%AB%E3%83%89%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)の違いの説明。(`umd`, `common`, `esm`)
+
+[ソースはここです](https://github.com/lmiller1990/webpack-simple-vue/tree/basic)。
 
 ## 設定
 
@@ -86,7 +88,9 @@ Entrypoint main = main.js
 
 ## Hello Webpack
 
-上のアウトプットを見ると`3.77 KiB`が書いてあります。なず？まだコードを１行もを書いていません！確認してみてください。`cat dist/main.js`を実行すると、１００行くらいのコードがあって、最後に
+上のアウトプットを見ると`3.77 KiB`が書いてあります。なぜ？まだコードを１行もを書いていません！
+
+確認してみてください。`cat dist/main.js`を実行すると、１００行くらいのコードがあって、最後に
 
 ```
 /***/ "./src/index.js":
@@ -194,7 +198,7 @@ module.exports = {
 
 ## `HtmlWebpackPlugin`
 
-最初のプラグインを入れます。簡単な`index.html`を作るぷログインをインストールします：
+最初のプラグインを入れます。簡単な`index.html`を作るプラグインをインストールします：
 
 ```
 npm install html-webpack-plugin --save-dev
@@ -232,7 +236,7 @@ module.exports = {
 }
 ```
 
-`plugins`は配列です。使いたいぷログインを入れて、そして`options`オブジェクトを渡します。ここで`template`オプションで`HtmlWebpackPlugin`に使いたい`template`を渡します。
+`plugins`は配列です。使いたいプラグインを入れて、そして`options`オブジェクトを渡します。ここで`template`オプションで`HtmlWebpackPlugin`に使いたい`template`を渡します。
 
 また`npm run dev`を実行して、`cat dist/index.html`をすると：
 
@@ -265,7 +269,7 @@ module.exports = {
 npm install vue --save
 ```
 
-普段は`babel`などでコンパイルしないと`import`, `export`を使えないが、`Webpack`でバンドルしているので`import`と`export`が使えます！`src/index.js`を更新：
+普段は`babel`などでコンパイルしないと`import`, `export`を使えないですが、`webpack`でバンドルしているので`import`と`export`が使えます！`src/index.js`を更新：
 
 ```js
 import Vue from "vue"
@@ -314,7 +318,7 @@ Either pre-compile the templates into render functions,
 or use the compiler-included build.
 ```
 
-理由は、`template`オプションでヴVueのマーカアップで作っていることです。
+理由は、`template`オプションでヴVueのマークアップで作っていることです。
 
 ```
 template: "<div>{{ msg }}</div>"
@@ -387,7 +391,7 @@ You may need an appropriate loader to handle this file type.
  @ ./src/index.js 2:0-31 9:6-11
 ```
 
-`webpack`は`.vue`ファイルの読み込みかたがわからないので。`You may need an appropriate loader`というエラーが出て来ました。デフォルトの設定で、`.js`しか読み込めないです。インスロールしましょう：
+`webpack`は`.vue`ファイルの読み込み方がわからないので。`You may need an appropriate loader`というエラーが出て来ました。デフォルトの設定で、`.js`しか読み込めないです。インストールしましょう：
 
 ```
 npm install vue-loader --save-dev
@@ -418,13 +422,133 @@ module.exports = {
 
 `vue-loader`の細かいは[ここ](https://vue-loader.vuejs.org/)。日本語がありません。
 
-また`npm run dev`
+また`npm run dev`を実行すると、うまくいくはずなのに・・・
+
+```
+ERROR in ./src/Hello.vue
+Module build failed: Error: 
+Cannot find module 'vue-template-compiler'
+```
+
+なぜかというと、`vue-loader`は`vue-template-compiler`を`peerDependency`として使っています。そうなると、`npm install`を実行しても、インストールされません。
+
+```
+npm install vue-template-compiler --save-dev
+```
+
+で対応できます。
+
+そして`npm run dev`を実行して、動いているはずです。（まだ`python`サーバーを立ち上げていたなら。）
+
+```
+Built at: 2018-05-31 21:17:47
+     Asset       Size  Chunks             Chunk Names
+   main.js    327 KiB    main  [emitted]  main
+index.html  191 bytes          [emitted]
+```
+
+`327 KiB`を覚えてください。もうすぐ軽くなります。
+
+## `render`関数でバンドルを軽く
+
+`vue/dist/vue.esm.js`を使う前のエラーメッセージをレビューします：
+
+```
+Either pre-compile the templates into render functions, 
+or use the compiler-included build.
+```
+
+前は、`vue/dist/vue.esm.js`を使うことで、`compiler`を入れました。その代わりに、`render`関数を使ってみましょう。`src/index.js`を更新します：
+
+```js
+import Vue from "vue"
+import Hello from "./Hello.vue"
+
+document.addEventListener("DOMContentLoaded", () => {
+  new Vue({
+    el: "#app",
+    
+    render: h => h(Hello)
+  })
+})
+```
+
+`render`関数を使うことで、もう少しシンプルになりました。`npm run dev`を実行して：
+
+```
+Built at: 2018-05-31 21:18:35
+     Asset       Size  Chunks             Chunk Names
+   main.js    245 KiB    main  [emitted]  main
+index.html  191 bytes          [emitted]
+```
+
+`245 KiB`になりました！`327 KiB`より全然軽くなりました。`--mode production`なら：
+
+```
+     Asset       Size  Chunks             Chunk Names
+   main.js   66.2 KiB       0  [emitted]  main
+index.html  191 bytes          [emitted]
+```
+
+`66.2 KiB`となります。
+
+## `dev-server`とホットリロード
+
+`webpack-dev-server`を簡単に使えます。
 
 
+```
+npx webpack-dev-server
+```
 
+だけで実行できます。
 
+```
+ℹ ｢wds｣: Project is running at http://localhost:8080/
+ℹ ｢wds｣: webpack output is served from /
+⚠ ｢wdm｣: Hash: 55f5a357f2dc60279c3f
+Version: webpack 4.10.2
+Time: 1210ms
+Built at: 2018-05-31 21:26:08
+     Asset       Size  Chunks             Chunk Names
+   main.js    204 KiB       0  [emitted]  main
+index.html  191 bytes          [emitted]
+```
 
+`http://localhost:8080/`にアクセスすると、見れるはずです。`python`のサーバーがいらなくなりますた。`Hello.vue`を更新して、保存すると自動に更新されるはずです。
 
+`webpack.config.js`をもう一回更新します：
 
+```js
+module.exports = {
+  // ...
+  devServer: {
+    overlay: true
+  }
+}
+```
+
+すると、JSのコンパイルエラーがあれば、ブラウザのオーバーレイで表示されます。
+
+## まとめ
+
+この記事で：
+
+- ゼロから`webpack.config.js`を作りました
+- `webpack`の設定が理解しました
+- プラグインの使い方を学びました
+    - `VueLoaderPlugin`
+    - `HtmlWebpackPlugin`
+- `module`に`rules`を追加ました
+    - `test: /\.vue$/`
+
+３０行だけの`webpack.config.js`だけでモダーン開発環境を作りました。
+
+## 改善
+
+- `babel-loader`を追加して、古いブラウズをサポートする（泣）
+- `babel-loader`を追加して、新しいES7などをサポートする(嬉)
+
+[ソースはここです](https://github.com/lmiller1990/webpack-simple-vue/tree/basic)。
 
 
