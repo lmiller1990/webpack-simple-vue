@@ -1,28 +1,35 @@
-const path = require("path")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
+const merge = require("webpack-merge")
+
 const VueLoaderPlugin = require("vue-loader/lib/plugin")
 
-module.exports = {
-  entry: "./src/index.js",
+const clientConfig = require("./config/client")
+const serverConfig = require("./config/server")
 
-  module: {
-    rules: [
-      {
-        test: /\.vue$/,
-        loader: "vue-loader"
-      }
-    ]
-  },
+const commonConfig = merge([
+  {
+    module: {
+      rules: [
+        {
+          test: /\.vue$/,
+          loader: "vue-loader"
+        }
+      ]
+    },
 
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "template.html")
-    }),
+    plugins: [
+      new VueLoaderPlugin()
+    ] 
+  }
+])
 
-    new VueLoaderPlugin()
-  ],
+const devConfig = merge([
+  clientConfig
+])
 
-  devServer: {
-    overlay: true
+module.exports = mode => { 
+  if (mode === "development") {
+    return merge(commonConfig, clientConfig, { mode })
+  } else if (mode === "production") {
+    return merge(commonConfig, serverConfig, { mode })
   }
 }
