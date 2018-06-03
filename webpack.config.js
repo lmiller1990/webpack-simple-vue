@@ -22,7 +22,7 @@ module.exports = mode => {
   if (mode === "development") {
     return merge(commonConfig, clientConfig, {mode})
   }
-  if (mode === "production") {
+  if (mode === "production" || mode === "none") {
     return merge(commonConfig, serverConfig, {mode})
   }
 }

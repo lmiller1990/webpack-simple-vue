@@ -55,7 +55,7 @@ mv template.html config/template.html
 
 `npm run dev` shoud still work.
 
-## `webpack-merge`
+## Adding `webpack-merge`
 
 There is some duplication in `webpack.config.js` now. We have to join the base config and with client by typing
 
@@ -147,7 +147,7 @@ Now `module.exports` returns a function. Webpack checks for the presence of a fu
 
 Notice the `msg`, `Hello` does not appear here - that is because it is rendered on the *client*. We will see a different page source when rendering on the server.
 
-## A second `entry`
+## The server side `entry`
 
 The server rendering bundle will use a different entry point. Create a file for it:
 
@@ -199,3 +199,143 @@ Let's try out new production config.
 ```
 npm run build
 ```
+
+```
+Built at: 2018-06-03 22:48:16
+  Asset      Size  Chunks             Chunk Names
+main.js  66.2 KiB       0  [emitted]  main
+Entrypoint main = main.js
+[0] (webpack)/buildin/global.js 489 bytes {0} [built]
+[2] ./src/create-app.js + 6 modules 4.59 KiB {0} [built]
+    | ./src/create-app.js 150 bytes [built]
+    | ./src/Hello.vue 1.05 KiB [built]
+```
+
+Looks good. Let's see if we can use the module in a Node.js environment:
+
+```js
+node
+> const { createApp } = require("./dist/main")
+undefined
+> createApp()
+TypeError: createApp is not a function
+>
+```
+
+We have a problem.
+
+## `output.library` and `output.libraryTarget`
+
+We need to set some `output` options in `config/server.js`. The documetation for `output` is [here](https://webpack.js.org/configuration/output/).
+
+We are interested in `library` and `libraryTarget`. The defaults are:
+
+```js
+output: {
+  libraryTarget: "var",
+  library: undefined
+}
+```
+
+`var` means webpack will assign our exports to `var`, which are attached to the `window` object for use in the browser (a UMD. Since `library` is undefined, however, webpack simply does nothing. Although the variable isn't assigned, in `src/index.js` we do:
+
+```js
+document.addEvenListener("DOMContentLoaded" ...)
+```
+
+So the Vue app still mounts. To get an idea of the options and what they do, run
+
+```
+mv dist/main.js dist/main_2.js
+```
+
+And try adding the following:
+
+
+```
+output: {
+  libraryTarget: "var",
+  library: "Bundle"
+}
+```
+
+And run `npm run build`. Let's compare the two:
+
+
+```
+diff dist/main.js dist/main_2.js
+
+< var Bundle=function(t){var e={};function n(r){if(e[r])return...
+
+---
+
+> !function(t){var e={};function n(r){if(e[r])return...
+```
+
+Now our bundle is assigned to a variable called `Bundle`. If you want, `cd dist && python -m SimpleHTTPServer`, then in the browser console and check:
+
+```
+> window.Bundle
+
+Module {
+  __esModule: true, 
+  Symbol(Symbol.toStringTag): "Module"
+}
+createApp: (...)Symbol(Symbol.toStringTag): "Module"
+__esModule: true
+get createApp: ƒ ()
+__proto__: Object
+
+> Bundle.createApp
+
+ƒ s(){return new r.a({el:"#app",render:t=>t(a)})}
+```
+
+We want to execute in a Node.js environment. We we need to target `commonjs2`. Update `config/server.js`:
+
+```js
+const path = require("path")
+
+module.exports = {
+  entry: "./src/create-app.js",
+
+  output: {
+    libraryTarget: "commonjs2"
+  }
+}
+```
+
+And run `npm run build`. Let's compare the outputs again with `diff dist/main.js dist/main_2.js`
+
+```js
+< !function(t){var e={};function n(r){if(e[r])return...
+
+---
+
+> < module.exports=function(t){var e={};function n(r){if(e[r])return
+```
+
+Looks good! Now we have `module.exports`. We can check using Node:
+
+```
+node
+> const {createApp} = require("./dist/main")
+> createApp
+[Function: s]
+```
+
+There are other things you can pass to `library` and `libraryTarget` - find out more in the [documentation](https://webpack.js.org/configuration/output/).
+
+## Adding a server (express)
+
+Now that we have a way to create the Vue app on the server, we need to serve it somehow. The easiest way to see this in action is with an express server. I personally like Rails better, and will go into that in a future article.
+
+Anyway, add `express`, and `vue-server-renderer`
+
+```
+npm install express vue-server-renderer --save
+```
+
+Create a file for the server code with `touch src/server.js`.
+
+

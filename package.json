@@ -1,13 +1,16 @@
 {
   "dependencies": {
+    "express": "^4.16.3",
     "vue": "^2.5.16",
     "vue-loader": "^15.2.2",
     "webpack": "^4.10.2",
     "webpack-cli": "^2.1.4",
-    "webpack-dev-server": "^3.1.4"
+    "webpack-dev-server": "^3.1.4",
+    "webpack-merge": "^4.1.2"
   },
   "scripts": {
     "build": "npx webpack --env production",
+    "build:local": "npx webpack --env none",
     "dev": "npx webpack-dev-server --env development"
   },
   "devDependencies": {
