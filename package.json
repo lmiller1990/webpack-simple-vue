@@ -7,8 +7,8 @@
     "webpack-dev-server": "^3.1.4"
   },
   "scripts": {
-    "build": "npx webpack",
-    "dev": "npx webpack-dev-server --mode development"
+    "build": "npx webpack --env production",
+    "dev": "npx webpack-dev-server --env development"
   },
   "devDependencies": {
     "html-webpack-plugin": "^3.2.0",
