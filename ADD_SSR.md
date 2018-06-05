@@ -132,7 +132,6 @@ Now `module.exports` returns a function. Webpack checks for the presence of a fu
 
 
 ```html
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -338,4 +337,90 @@ npm install express vue-server-renderer --save
 
 Create a file for the server code with `touch src/server.js`.
 
+```js
+const express = require("express")
+const renderer = require("vue-server-renderer").createRenderer()
+const {createApp} = require("../dist/main")
 
+const server = express()
+
+server.get("*", (req, res) => {
+  const app = createApp()
+
+  renderer.renderToString(app).then(html => {
+    res.end(html)
+  })
+})
+
+server.listen(8000, () => console.log("Started server on port 8000."))
+```
+
+There are two interesting parts here:
+
+``js
+const renderer = require("vue-server-renderer").createRenderer()
+```
+
+Which instantiates an server renderer instance, and:
+
+```js
+renderer.renderToString(app).then(html => {
+  res.end(html)
+})
+```
+
+Which takes our app, renders it and returns the markup as a string. All that is left is to serve the markup to the user. More info about Vue server renderer is [here](https://ssr.vuejs.org/guide/#rendering-a-vue-instance).
+
+We can try out by running:
+
+```
+npm run build && node src/server.js
+```
+
+If everything it working, you can now visit `localhost:8000` and you should see the same old hello message. However, inspecting the element using the devtools shows:
+
+```
+<div data-server-rendered="true">Hello</div>
+```
+
+Indicating it was rendered on the server. Let's compare the page source to the client rendered source, shown earler:
+
+### client rendered:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+  <div id="app"></div>
+<script type="text/javascript" src="main.js"></script></body>
+</html>
+```
+
+### server rendered:
+
+```
+<div data-server-rendered="true">Hello</div>
+```
+
+Notice `<div app>` is not shown anywhere? It is replaced when we we generate the markup using the server renderer, so all that is served is the actual markup.
+
+## Conclusion
+
+In this article, we covered:
+
+- the different environments webpack can target
+- how to use `webpack-merge`
+- how to user `library` and `libraryTarget`
+- refactor and share code between the server and client
+
+## Improvments
+
+Many improvements are left, which will be covered in the future, such as:
+
+- hydrating the app on the server (server rendering using some dynamic data like the user id)
+- routing (both client and server)
+- use ES6 syntax, like `import` and `export` in Node.js with babel
