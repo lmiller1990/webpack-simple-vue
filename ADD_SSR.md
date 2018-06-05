@@ -2,6 +2,8 @@ In this article, I will continue on from the work in my previous post, where I s
 
 Server side rendering is where the HTML for the application is constructed dynamically by the server using Node.js. The newly rendered HTML is then sent back in the response. This is in contrast to client side rendering, where JavaScript bundled by Webpack is to the client as is, where it is processed by the browser JavaScript engine. There are benefits to both approaches, which will not be discussed in this post.
 
+The source code can be found [here](https://github.com/lmiller1990/webpack-simple-vue/tree/add_server_rendering).
+
 ## Splitting `webpack.config.js`
 
 A different webpack config is required, depending on whether the application is rendered on server or the client. We want to support both - for development, `webpack-dev-server` is a powerful tool, which delegates the processing and rendering to the client. In production, we will render on the server. A lot of the webpack config can be shared, such as `module`, where we declare `loaders`. Create a folder and two new files for the non unique webpack settings:
@@ -424,3 +426,5 @@ Many improvements are left, which will be covered in the future, such as:
 - hydrating the app on the server (server rendering using some dynamic data like the user id)
 - routing (both client and server)
 - use ES6 syntax, like `import` and `export` in Node.js with babel
+
+The source code can be found [here](https://github.com/lmiller1990/webpack-simple-vue/tree/add_server_rendering).
