@@ -1,6 +1,7 @@
 const express = require("express")
-const renderer = require("vue-server-renderer").createRenderer()
 const {createApp} = require("../dist/main")
+
+const renderer = require('vue-server-renderer').createRenderer()
 
 const server = express()
 

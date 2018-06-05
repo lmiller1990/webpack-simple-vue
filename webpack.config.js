@@ -1,5 +1,5 @@
-const VueLoaderPlugin = require("vue-loader/lib/plugin")
 const merge = require("webpack-merge")
+const VueLoaderPlugin = require("vue-loader/lib/plugin")
 const clientConfig = require("./config/client")
 const serverConfig = require("./config/server")
 
@@ -26,3 +26,4 @@ module.exports = mode => {
     return merge(commonConfig, serverConfig, {mode})
   }
 }
+
