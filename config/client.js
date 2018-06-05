@@ -6,7 +6,7 @@ module.exports = {
 
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(path.join(__dirname, "../src/template.html")),
+      template: path.resolve(__dirname, "template.html")
     })
   ],
 

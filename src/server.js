@@ -1,11 +1,7 @@
-const fs = require("fs")
-const path = require("path")
 const express = require("express")
-const {createApp} = require("../dist/server-bundle.js")
+const {createApp} = require("../dist/main")
 
-const renderer = require('vue-server-renderer').createRenderer({ 
-  template: fs.readFileSync("./src/template.html", { encoding: "utf8" })
-})
+const renderer = require('vue-server-renderer').createRenderer()
 
 const server = express()
 
@@ -13,8 +9,6 @@ server.get("*", (req, res) => {
   const app = createApp()
 
   renderer.renderToString(app).then(html => {
-    console.log(html)
-
     res.end(html)
   })
 })
