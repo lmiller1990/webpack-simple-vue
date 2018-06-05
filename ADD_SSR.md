@@ -51,7 +51,7 @@ module.exports = {
 
 Also, move `template.html` into `config`: 
 
-````
+```
 mv template.html config/template.html
 ```
 
@@ -359,7 +359,7 @@ server.listen(8000, () => console.log("Started server on port 8000."))
 
 There are two interesting parts here:
 
-``js
+```js
 const renderer = require("vue-server-renderer").createRenderer()
 ```
 
