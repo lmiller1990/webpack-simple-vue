@@ -42,5 +42,17 @@ npm install axios vuex --save
 
 Let's make a store, and get it working on the dev server first. Create a store by running `touch src/store.js`. Inside it, add the following:
 
-//#
+//# add-hydration:src/store.js?7824c789d5a62a81e3ab9d80c5121e24d11e793f
+
+Standard Vuex, nothing special, so I won't go into any detail.
+
+We need to use the store now. Update `create-app`:
+
+
+//# add-hydration:src/create-app.js?7824c789d5a62a81e3ab9d80c5121e24d11e793f
+
+We are now returning `{ app, store, App }`. This is because we will need access to both `App` and `store` in `src/server.js` later on.
+
+If you run `npm run dev`, and visit `localhost:8080`, everything should still be working. Update `src/Hello.vue`, to dispatch the action in `mounted`:
+
 
