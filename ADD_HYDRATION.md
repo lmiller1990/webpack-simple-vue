@@ -65,4 +65,54 @@ Run `npm run build && node src/server.js`, then visit `localhost:8000`. You will
 
 In `Hello.vue`, add a `asyncData` function. This is not part of Vue, just a regular JavaScript function.
 
+//# add-hydration:src/Hello.vue:12,13,14?69a413a30349d1ddc88e56d367b9547d23c09117
 
+We have to pass `store` as an argument. This is because `asyncData` is not part of Vue, so it doesn't have access to `this`, so we cannot access the store - in fact, because we will call this function before calling `renderer.renderToString`, `this` doesn't even exist yet.
+
+Now update `src/server.js` to call `asyncData`:
+
+//# add-hydration:src/server.js:8-16?69a413a30349d1ddc88e56d367b9547d23c09117
+
+Now we when render `app`, `store.state` should already contain `post`! Let's try it out:
+
+```
+npm run build && node src/server.js
+```
+
+Visting `localhost:8000` causes a error to be shown in the terminal:
+
+```
+(node:9708) UnhandledPromiseRejectionWarning: ReferenceError: XMLHttpRequest is not defined
+    at /Users/lachlanmiller/javascript/vue/webpack-simple/dist/main.js:7:63038
+    at new Promise (<anonymous>)
+    at t.exports (/Users/lachlanmiller/javascript/vue/webpack-simple/dist/main.js:7:62939)
+    at t.exports (/Users/lachlanmiller/javascript/vue/webpack-simple/dist/main.js:12:10624)
+    at <anonymous>
+    at process._tickCallback (internal/process/next_tick.js:188:7)
+```
+
+`XMLHttpRequest` is Web API, and does not exist in a Node environment. But why is this happening? `axios` is meant to work on both the client and server, right?
+
+Let's take a look at `axios`:
+
+```
+cat node_modules/axios/package.json
+```
+
+There is a bunch of stuff. The fields are interested in are `browser` and `main`:
+
+```
+"main": "index.js"
+
+...
+
+"browser": {
+  "./lib/adapters/http.js": "./lib/adapters/xhr.js"
+}
+```
+
+`browser` is the source of the problem. See more about [browser](https://docs.npmjs.com/files/package.json#browser) on npm. Basically, if there is a `browser` field, and the `target` of the webpack build is `web`, it will use the `browser` field instead of `main`. Let's review our `config/server.js`:
+
+//# add-hydration:config/server.js?69a413a30349d1ddc88e56d367b9547d23c09117
+
+We did not specify `target`. If we check the documentation [here](https://webpack.js.org/concepts/targets/#multiple-targets), we can see that the default value for `target` is web. This means we are using the `axios` build intended for the client instead of the Node.js build. Update `config.server.js`:
