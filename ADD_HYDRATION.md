@@ -1,4 +1,4 @@
-This article will continue on from my previous one, where we implemented basic server side rendering. Now we will add hydration. If the application relies on an external resource, for example data retreived from an external endpoint, the data needs to be fetched and resolved __before__ we call `renderer.renderToString`.
+This article will continue on from my [previous post](https://itnext.io/setting-up-webpack-for-ssr-with-vue-b6ff9125d359), where we implemented basic server side rendering. Now we will add hydration. If the application relies on an external resource, for example data retreived from an external endpoint, the data needs to be fetched and resolved __before__ we call `renderer.renderToString`.
 
 For this example, we will fetch a post from [JSONPlaceholder](https://jsonplaceholder.typicode.com/posts/1). The data looks like this:
 
@@ -116,3 +116,33 @@ There is a bunch of stuff. The fields are interested in are `browser` and `main`
 //# add-hydration:config/server.js?69a413a30349d1ddc88e56d367b9547d23c09117
 
 We did not specify `target`. If we check the documentation [here](https://webpack.js.org/concepts/targets/#multiple-targets), we can see that the default value for `target` is web. This means we are using the `axios` build intended for the client instead of the Node.js build. Update `config.server.js`:
+
+//# add-hydration:config/server.js?d62db2ddb776beff22a453acd1aa23ff0a0bfa71
+
+Now run 
+
+```
+npm run build && node src/server.js
+```
+
+ and visit `localhost:8000`. The `title` is rendered! Compare it to `localhost:8080` using the dev server - you can see that when we do the client side fetching, the title is blank briefly, until the request finished. Visiting `localhost:8000` doesn't have this problem, since the data is fetched before the app is even rendered.
+
+### Conclusion
+
+We saw how to write code that runs both on the server and client. This configuration is by no means robust and is not meant for use in a serious app, but illustrates how to set up different webpack configs for the client and server. 
+
+In this post we learned:
+
+- about `package.json`, specifically the `browser` property
+- webpack's `target` property
+- how to execute an ajax request on both the client and server
+
+### Improvements
+
+Many improvements remain:
+
+- use Vue Router (both server and client side)
+- more robust data fetching
+- add some unit tests
+
+The source code is available [here]().
