@@ -53,6 +53,16 @@ We need to use the store now. Update `create-app`:
 
 We are now returning `{ app, store, App }`. This is because we will need access to both `App` and `store` in `src/server.js` later on.
 
-If you run `npm run dev`, and visit `localhost:8080`, everything should still be working. Update `src/Hello.vue`, to dispatch the action in `mounted`:
+If you run `npm run dev`, and visit `localhost:8080`, everything should still be working. Update `src/Hello.vue`, to dispatch the action in `mounted`, and retreive it using a `computed` property:
+
+//# add-hydration:src/create-app.js?c0a305b6e6cd8c2e0bcfd516ef30ebd0646c3884
+
+`localhost:8080` should now display the `title` as well as `Hello`.
+
+### Fetching the resources on the server
+
+Run `npm run build && node src/server.js`, then visit `localhost:8000`. You will notice `Hello` is rendered, but the `post.title` is not. This is because `mounted` only runs in a browser. There are no dynamic updated when using SSR, only `created` and `beforeCreate` execute. See [here](https://ssr.vuejs.org/guide/universal.html#component-lifecycle-hooks) for more information. We need another way to dispatch the action.
+
+In `Hello.vue`, add a `asyncData` function. This is not part of Vue, just a regular JavaScript function.
 
 

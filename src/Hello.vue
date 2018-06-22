@@ -9,6 +9,10 @@
 export default {
   name: "Hello",
 
+  asyncData(store) {
+    return store.dispatch("fetchPost")
+  },
+
   mounted() {
     this.$store.dispatch("fetchPost")
   },
