@@ -6,7 +6,7 @@ const renderer = require('vue-server-renderer').createRenderer()
 const server = express()
 
 server.get("*", (req, res) => {
-  const app = createApp()
+  const { app, store, App } = createApp()
 
   renderer.renderToString(app).then(html => {
     res.end(html)

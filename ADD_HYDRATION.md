@@ -42,4 +42,5 @@ npm install axios vuex --save
 
 Let's make a store, and get it working on the dev server first. Create a store by running `touch src/store.js`. Inside it, add the following:
 
+//#
 
