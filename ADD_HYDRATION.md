@@ -55,7 +55,7 @@ We are now returning `{ app, store, App }`. This is because we will need access 
 
 If you run `npm run dev`, and visit `localhost:8080`, everything should still be working. Update `src/Hello.vue`, to dispatch the action in `mounted`, and retreive it using a `computed` property:
 
-//# add-hydration:src/create-app.js?c0a305b6e6cd8c2e0bcfd516ef30ebd0646c3884
+//# add-hydration:src/Hello.vue:1,2,3,4,5,6,9,12,13,14,27?c0a305b6e6cd8c2e0bcfd516ef30ebd0646c3884
 
 `localhost:8080` should now display the `title` as well as `Hello`.
 
